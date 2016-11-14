@@ -1,32 +1,31 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-"""
-Programa cliente que abre un socket a un servidor
-"""
-
+"""Programa cliente UDP que abre un socket a un servidor."""
 import socket
+import sys
+import os 
 
-# Cliente UDP simple.
+os.system("clear")
 
-# Dirección IP del servidor.
-SERVER = 'localhost'
-PORT = 6001
 
-# Contenido que vamos a enviar
-LINE = '¡Hola mundo!'
-
-# Creamos el socket, lo configuramos y lo atamos a un servidor/puerto
-my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-my_socket.connect((SERVER, PORT))
-
-print("Enviando: " + LINE)
-my_socket.send(bytes(LINE, 'utf-8') + b'\r\n')
-data = my_socket.recv(1024)
-
-print('Recibido -- ', data.decode('utf-8'))
-print("Terminando socket...")
-
-# Cerramos todo
-my_socket.close()
-print("Fin.")
+try:
+    MET, USER = sys.argv[1:]
+    NAME, PORT = USER.split(':')[0:]
+    IP = NAME.split('@')[1]
+except ValueError:
+    sys.exit("Usage: python3 client.py method receiver@IP:SIPport")
+with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
+    my_socket.connect((IP, int(PORT)))
+    if MET == "invite":
+        message = ("INVITE sip:" + NAME + " SIP/2.0\r\n")
+    elif MET == "ack":
+        message = ("ACK sip:" + NAME + " SIP/2.0\r\n")
+    elif MET == "bye":
+        message = ("BYE sip:" + NAME + " SIP/2.0\r\n")
+    my_socket.send(bytes(message, 'utf-8'))
+    try:
+        data = my_socket.recv(1024).decode('utf-8')
+    except ConnectionRefusedError:
+        sys.exit("No se puede conectar al servidor")
+    print(data)
+    
