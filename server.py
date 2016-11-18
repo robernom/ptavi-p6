@@ -18,17 +18,23 @@ class SIPHandler(socketserver.DatagramRequestHandler):
 
     def handle(self):
         # Escribe dirección y puerto del cliente (de tupla client_address)
-        while 1:
-            # Leyendo línea a línea lo que nos envía el cliente
-            line = self.rfile.read()
-            if not line:
-                break
-            # Si no hay más líneas salimos del bucle infinito
-            print("El cliente nos manda " + line.decode('utf-8'))
+        """Cada vez que un cliente envia una peticion se ejecuta."""
+        data = self.rfile.read().decode('utf-8')
+        print(data)
+        c_data = data.split()
+        c_ip = self.client_address[0]
+        met = c_data[0]
+        if met == "INVITE":
+        	self.wfile.write(b"SIP/2.0 100 Trying\r\n")
+        	self.wfile.write(b"SIP/2.0 180 Ring\r\n")
+        	self.wfile.write(b"SIP/2.0 200 OK\r\n\r\n")
+        elif met == "BYE":
             self.wfile.write(b"SIP/2.0 200 OK\r\n\r\n")
-
-            
-            
+        elif met == "ACK":
+            print("Envio RTP")
+            os.system("./mp32rtp -i " + c_ip +" -p 23032 < cancion.mp3")
+        else:
+            self.wfile.write(b"SIP/2.0 405 Method Not Allowed\r\n\r\n")
 
 if __name__ == "__main__":
     # Creamos servidor y escuchamos
