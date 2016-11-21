@@ -5,7 +5,6 @@ import socket
 import sys
 import os
 
-os.system("clear")
 try:
     MET = sys.argv[1]
     USER = sys.argv[2]
