@@ -20,7 +20,7 @@ class SIPHandler(socketserver.DatagramRequestHandler):
         to_send = ""
         if met == "INVITE":
             to_send = ("SIP/2.0 100 Trying\r\n\r\nSIP/2.0 180 Ring\r\n\r\n" +
-                        "SIP/2.0 200 OK\r\n\r\n")
+                       "SIP/2.0 200 OK\r\n\r\n")
         elif met == "BYE":
             to_send = "SIP/2.0 200 OK\r\n\r\n"
         elif met == "ACK":
